@@ -1,0 +1,55 @@
+import netCDF4 as nc
+import pandas as pd
+import numpy as np
+
+path = 'D:\\files\\Era5_langenburg.nc'
+
+#def extract(path):
+ds = nc.Dataset(path)
+print(list(ds.variables))
+
+
+
+#making date time for data frame from jan-april hourly
+date_time = pd.date_range(start='2020-01-01 00:00:00', end='2020-12-31 23:00:00', freq='H' )
+
+#Creating a DataFrame by pandas and insert
+df = pd.DataFrame(columns=['temp','tot_precp','surf_press','sol_rad','heat_flux','high_veg','low_veg','cape','fric_vel','u100','v100','u10','v10'], index=date_time)
+#index = df.insert(loc=0, column='Date_time', value=date_time)
+#df.set_index(index)
+
+##Find out the required coordinates of lat,long
+long = ds.variables['longitude'][:] #9.85
+lat = ds.variables['latitude'][:]  #49.27
+
+
+for val in range(len(date_time)):
+    df['temp'].iloc[val]= ds.variables['t2m'][val,0,0]
+    df['tot_precp'].iloc[val]= ds.variables['tp'][val,0,0]
+    df['surf_press'].iloc[val] = ds.variables['sp'][val,0,0]
+    df['sol_rad'].iloc[val] = ds.variables['ssr'][val,0,0]
+    df['heat_flux'].iloc[val] = ds.variables['sshf'][val,0,0]
+    df['high_veg'].iloc[val] = ds.variables['cvh'][val,0,0]
+    df['low_veg'].iloc[val] = ds.variables['cvl'][val,0,0]
+    df['cape'].iloc[val] = ds.variables['cape'][val,0,0]
+    df['fric_vel'].iloc[val] = ds.variables['zust'][val,0,0]
+    df['u100'].iloc[val] = ds.variables['u100'][val,0,0]
+    df['v100'].iloc[val] = ds.variables['v100'][val,0,0]
+    df['u10'].iloc[val] = ds.variables['u10'][val,0,0]
+    df['v10'].iloc[val] = ds.variables['v10'][val,0,0]
+
+
+df['temp'] = np.array(df['temp'])
+#df.astype({"temp": float, "tot_precp": float,'surf_press': float,'sol_rad': float,'heat_flux': float,'high_veg': float,'low_veg': float,'cape': float,'fric_vel': float,
+          #  'u100': float,'v100': float,'u10': float,'v10': float})
+
+#print(ds.variables['t2m'])
+#Insert all the variables to DataFrame
+#df['t2m'] = ds.variables['t2m']
+
+print(df.head(), df.tail())
+#print(df.describe())
+
+
+# Write into csv file stored in local disk
+df.to_csv('D:\\files\\Era5_west_langenburg.csv')
